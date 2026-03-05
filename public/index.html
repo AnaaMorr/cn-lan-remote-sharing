@@ -3,19 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LAN Remote Share</title>
+    <title>LAN Remote Desktop</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>LAN Remote Share</h1>
-            <p>Choose your role to begin</p>
-        </header>
-        <div class="role-buttons">
-            <button class="role-btn" onclick="location.href='host.html'">Host Screen</button>
-            <button class="role-btn" onclick="location.href='client.html'">Join Screen</button>
+    <div class="home-container">
+        <div class="home-content fade-in">
+            <div class="home-logo">🖥️</div>
+            <h1 class="home-title">Remote Desktop System</h1>
+            <p class="home-subtitle">Professional WebRTC-based screen sharing and remote control</p>
+            
+            <div class="home-buttons">
+                <button class="btn btn-primary btn-lg" onclick="startHostSession()">
+                    <span>🎤 Host Session</span>
+                </button>
+                <button class="btn btn-secondary btn-lg" onclick="showJoinDialog()">
+                    <span>📱 Join Session</span>
+                </button>
+            </div>
+            
+            <div style="margin-top: 2rem; color: #94a3b8; font-size: 0.875rem;">
+                <p>Select a role to begin. Host creates a shareable link, join to connect to existing sessions.</p>
+            </div>
         </div>
     </div>
+
+    <!-- Join Session Modal -->
+    <div id="joinModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Join Remote Session</h3>
+            </div>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label for="roomIdInput">Room ID or Link</label>
+                    <input 
+                        type="text" 
+                        id="roomIdInput" 
+                        placeholder="Paste room ID (e.g., A1B2C3D4) or full URL"
+                    >
+                </div>
+                <p style="color: #94a3b8; font-size: 0.875rem;">
+                    Ask the host for their room ID or click the link they shared.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeJoinDialog()">Cancel</button>
+                <button class="btn btn-primary" onclick="joinSession()">Connect</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function startHostSession() {
+            // Create a new room and redirect to host page
+            fetch('/api/room/create', { method: 'POST' })
+                .then(r => r.json())
+                .then(data => {
+                    window.location.href = `/room-host.html?room=${data.roomId}`;
+                })
+                .catch(e => alert('Failed to create session: ' + e.message));
+        }
+
+        function showJoinDialog() {
+            document.getElementById('joinModal').classList.add('active');
+            document.getElementById('roomIdInput').focus();
+        }
+
+        function closeJoinDialog() {
+            document.getElementById('joinModal').classList.remove('active');
+        }
+
+        function joinSession() {
+            let roomId = document.getElementById('roomIdInput').value.trim();
+            
+            // Extract room ID from URL if they pasted a link
+            if (roomId.includes('/room/')) {
+                roomId = roomId.split('/room/')[1].split('?')[0];
+            }
+            
+            if (!roomId) {
+                alert('Please enter a room ID');
+                return;
+            }
+            
+            window.location.href = `/room-client.html?room=${roomId}`;
+        }
+
+        // Allow Enter key to submit
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && document.getElementById('joinModal').classList.contains('active')) {
+                joinSession();
+            }
+        });
+    </script>
 </body>
 </html>

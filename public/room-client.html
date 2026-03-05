@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remote Control - Desktop</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="client-layout">
+        <!-- Header -->
+        <div class="client-header">
+            <div class="client-title">
+                <span id="roomDisplay">Room: Loading...</span>
+            </div>
+            <div class="client-info">
+                <div style="text-align: right; font-size: 0.875rem;">
+                    <div style="color: #94a3b8;">Latency</div>
+                    <div id="latency" style="color: #10b981; font-weight: 600;">-- ms</div>
+                </div>
+                <span id="connectionBadge" class="badge badge-danger">Connecting...</span>
+                <button class="btn btn-secondary btn-icon" title="Disconnect" onclick="disconnect()">
+                    ⏻
+                </button>
+                <button class="btn btn-secondary btn-icon" title="Back to Home" onclick="goHome()">
+                    🏠
+                </button>
+            </div>
+        </div>
+
+        <!-- Video Container -->
+        <div class="client-video-container" id="videoContainer">
+            <video id="remoteVideo" autoplay playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
+            <div id="remoteCursor" class="remote-cursor hidden">
+                <div class="remote-cursor-inner"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src=" /socket.io/socket.io.js"></script>
+    <script src="room-client.js"></script>
+</body>
+</html>

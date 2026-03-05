@@ -1,17 +1,30 @@
 {
-  "name": "cn-project-lan-remote-sharing",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "lan-remote-desktop",
+  "version": "2.0.0",
+  "description": "Professional WebRTC-based remote desktop system",
+  "main": "server.js",
   "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "control-service": "node public/host-control-service.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": [
+    "webrtc",
+    "remote-desktop",
+    "screen-sharing"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "express": "^5.2.1",
     "socket.io": "^4.8.3",
+    "uuid": "^9.0.1"
+  },
+  "optionalDependencies": {
     "robotjs": "^0.6.0"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.0.0"
   }
 }
