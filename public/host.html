@@ -1,17 +1,42 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Host</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Host Screen</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
+    <div class="container">
+        <header>
+            <h1>Host Screen</h1>
+            <p>You're sharing your screen. Close the tab to stop.</p>
+        </header>
 
-<h2>Host Screen</h2>
+        <div class="video-section">
+            <video id="localVideo" autoplay muted></video>
+        </div>
 
-<video id="localVideo" autoplay muted></video>
+        <div class="info-section">
+            <p>Send this IP address to your viewer:</p>
+            <pre id="ipAddress">fetching...</pre>
+        </div>
+    </div>
 
-<script src="/socket.io/socket.io.js"></script>
-<script src="host.js"></script>
-
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="host.js"></script>
+    <script>
+        // display local IP addresses matching server log
+        async function fetchIPs() {
+            try {
+                const res = await fetch('/ips');
+                const ips = await res.json();
+                document.getElementById('ipAddress').textContent = ips.join('\n');
+            } catch (e) {
+                document.getElementById('ipAddress').textContent = 'unable to fetch IP';
+            }
+        }
+        fetchIPs();
+    </script>
 </body>
 </html>

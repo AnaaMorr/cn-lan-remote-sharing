@@ -1,20 +1,21 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>LAN Remote Share</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAN Remote Share</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-
-<h1>LAN Resource Sharing</h1>
-
-<button onclick="location.href='host.html'">
-Host Screen
-</button>
-
-<button onclick="location.href='client.html'">
-Join Screen
-</button>
-
+    <div class="container">
+        <header>
+            <h1>LAN Remote Share</h1>
+            <p>Choose your role to begin</p>
+        </header>
+        <div class="role-buttons">
+            <button class="role-btn" onclick="location.href='host.html'">Host Screen</button>
+            <button class="role-btn" onclick="location.href='client.html'">Join Screen</button>
+        </div>
+    </div>
 </body>
 </html>

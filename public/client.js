@@ -23,6 +23,7 @@ function setConnected() {
     connectBtn.disabled = false;
     connectBtn.textContent = "Disconnect";
     serverIPInput.disabled = true;
+    enableMouseControl();
 }
 
 function setDisconnected() {
@@ -30,6 +31,51 @@ function setDisconnected() {
     connectBtn.disabled = false;
     connectBtn.textContent = "Connect";
     serverIPInput.disabled = false;
+    disableMouseControl();
+}
+
+function enableMouseControl() {
+    video.addEventListener('mousemove', handleMouseMove);
+    video.addEventListener('mousedown', handleMouseDown);
+    video.addEventListener('wheel', handleMouseWheel);
+    video.style.cursor = 'crosshair';
+}
+
+function disableMouseControl() {
+    video.removeEventListener('mousemove', handleMouseMove);
+    video.removeEventListener('mousedown', handleMouseDown);
+    video.removeEventListener('wheel', handleMouseWheel);
+    video.style.cursor = 'default';
+}
+
+function getRelativePosition(event) {
+    const rect = video.getBoundingClientRect();
+    const x = (event.clientX - rect.left) / rect.width;
+    const y = (event.clientY - rect.top) / rect.height;
+    return { x: Math.max(0, Math.min(1, x)), y: Math.max(0, Math.min(1, y)) };
+}
+
+function handleMouseMove(event) {
+    if (!socket || !socket.connected) return;
+    const pos = getRelativePosition(event);
+    socket.emit('mouse-move', pos);
+}
+
+function handleMouseDown(event) {
+    if (!socket || !socket.connected) return;
+    event.preventDefault();
+    const pos = getRelativePosition(event);
+    let button = 'left';
+    if (event.button === 2) button = 'right';
+    socket.emit('mouse-click', { button, double: false });
+}
+
+function handleMouseWheel(event) {
+    if (!socket || !socket.connected) return;
+    event.preventDefault();
+    const deltaX = event.deltaX > 0 ? 1 : event.deltaX < 0 ? -1 : 0;
+    const deltaY = event.deltaY > 0 ? 1 : event.deltaY < 0 ? -1 : 0;
+    socket.emit('mouse-scroll', { x: deltaX, y: deltaY });
 }
 
 pc.ontrack = event => {

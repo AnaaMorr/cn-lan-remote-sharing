@@ -32,4 +32,7 @@ socket.on("answer", async answer => {
     await pc.setRemoteDescription(answer);
 });
 
-startShare();
+// no automatic start until page ready
+window.addEventListener('load', () => {
+    startShare();
+});

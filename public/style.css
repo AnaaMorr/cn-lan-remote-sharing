@@ -145,3 +145,48 @@ video {
         width: 100%;
     }
 }
+
+/* index page roles */
+.role-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.role-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    border: none;
+    padding: 15px 40px;
+    border-radius: 25px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.role-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+.role-btn:active {
+    transform: translateY(0);
+}
+
+/* host page info */
+.info-section {
+    margin-top: 20px;
+    font-size: 1rem;
+    color: #4a5568;
+}
+
+.info-section pre {
+    background: #edf2f7;
+    padding: 10px;
+    border-radius: 8px;
+    overflow-x: auto;
+    text-align: left;
+}
+
