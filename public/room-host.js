@@ -34,6 +34,7 @@ async function initializeShareLink() {
         const serverIp = ips[0] || window.location.origin;
         const linkUrl = `${serverIp}/room-client.html?room=${roomId}`;
         shareLink.textContent = linkUrl;
+        console.log('✓ Share link ready:', linkUrl);
     } catch (e) {
         // Fallback to current origin if IP fetch fails
         const linkUrl = `${window.location.origin}/room-client.html?room=${roomId}`;
@@ -44,12 +45,25 @@ async function initializeShareLink() {
 
 initializeShareLink();
 
+// Verify room exists
+fetch(`/api/room/${roomId}`)
+    .then(r => {
+        if (r.ok) {
+            console.log('✓ Room ID verified:', roomId);
+        } else {
+            console.error('✗ Room ID not found on server:', roomId);
+            alert('Room not found on server. Please refresh and try again.');
+        }
+    })
+    .catch(e => console.error('Failed to verify room:', e));
+
 // Connect to signaling server
 socket.emit('host-join', { roomId }, (response) => {
     if (response.success) {
-        console.log('✓ Joined room:', roomId);
+        console.log('✓ Host joined room:', roomId);
         updateConnectionStatus(true);
     } else {
+        console.error('✗ Failed to join room:', response.error);
         alert('Failed to join room: ' + response.error);
         goHome();
     }

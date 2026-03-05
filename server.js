@@ -24,8 +24,26 @@ app.get("/", (req, res) => {
 app.post("/api/room/create", (req, res) => {
     const roomId = uuidv4().substring(0, 8).toUpperCase();
     rooms.set(roomId, { hostId: null, clients: [], createdAt: Date.now() });
-    res.json({ roomId, url: `http://localhost:3000/room/${roomId}` });
+    console.log(`📍 Room created: ${roomId} (Total rooms: ${rooms.size})`);
+    res.json({ 
+        roomId, 
+        url: `${getFirstLanIP()}:${process.env.PORT || 3000}/room-client.html?room=${roomId}`
+    });
 });
+
+// Get first available LAN IP
+function getFirstLanIP() {
+    const networkInterfaces = os.networkInterfaces();
+    for (const ifaceName in networkInterfaces) {
+        const iface = networkInterfaces[ifaceName];
+        for (const alias of iface) {
+            if (alias.family === "IPv4" && !alias.internal) {
+                return `http://${alias.address}`;
+            }
+        }
+    }
+    return 'http://localhost';
+}
 
 // Get room info
 app.get("/api/room/:roomId", (req, res) => {
@@ -66,11 +84,15 @@ io.on("connection", (socket) => {
 
     // Host joins room
     socket.on("host-join", ({ roomId }, callback) => {
+        console.log(`🎤 Host attempting to join room: ${roomId}`);
+        
         const room = rooms.get(roomId);
         if (!room) {
+            console.log(`❌ Room ${roomId} not found for host join`);
             return callback({ success: false, error: "Room not found" });
         }
         if (room.hostId) {
+            console.log(`❌ Host already connected to room ${roomId}`);
             return callback({ success: false, error: "Host already connected" });
         }
 
@@ -79,18 +101,22 @@ io.on("connection", (socket) => {
         socket.data.roomId = roomId;
         socket.data.role = "host";
 
+        console.log(`✓ Host joined room ${roomId}`);
         callback({ success: true, roomId });
         io.to(roomId).emit("host-status", { connected: true });
-        console.log(`Host joined room ${roomId}`);
     });
 
     // Client joins room
     socket.on("client-join", ({ roomId }, callback) => {
+        console.log(`👤 Client attempting to join room: ${roomId} (Available rooms: ${Array.from(rooms.keys()).join(', ') || 'none'})`);
+        
         const room = rooms.get(roomId);
         if (!room) {
+            console.log(`❌ Room ${roomId} not found`);
             return callback({ success: false, error: "Room not found" });
         }
         if (!room.hostId) {
+            console.log(`⚠️ Host not connected in room ${roomId}`);
             return callback({ success: false, error: "Host not connected" });
         }
 
@@ -99,9 +125,9 @@ io.on("connection", (socket) => {
         socket.data.roomId = roomId;
         socket.data.role = "client";
 
+        console.log(`✓ Client joined room ${roomId} (Total clients: ${room.clients.length})`);
         callback({ success: true, roomId, hostId: room.hostId });
         io.to(room.hostId).emit("client-connected", { clientId: socket.id });
-        console.log(`Client joined room ${roomId}`);
     });
 
     // Relay WebRTC signaling messages
