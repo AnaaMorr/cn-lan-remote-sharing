@@ -24,8 +24,25 @@ const statusDot = document.getElementById('statusDot');
 const clientsList = document.getElementById('clientsList');
 const clientCount = document.getElementById('clientCount');
 
-// Initialize share link
-shareLink.textContent = `${window.location.origin}/room-client.html?room=${roomId}`;
+// Initialize share link with correct IP (not localhost)
+async function initializeShareLink() {
+    try {
+        const response = await fetch('/api/ips');
+        const ips = await response.json();
+        
+        // Use the first available IP (usually the LAN IP)
+        const serverIp = ips[0] || window.location.origin;
+        const linkUrl = `${serverIp}/room-client.html?room=${roomId}`;
+        shareLink.textContent = linkUrl;
+    } catch (e) {
+        // Fallback to current origin if IP fetch fails
+        const linkUrl = `${window.location.origin}/room-client.html?room=${roomId}`;
+        shareLink.textContent = linkUrl;
+        console.warn('Failed to fetch server IPs, using fallback:', linkUrl);
+    }
+}
+
+initializeShareLink();
 
 // Connect to signaling server
 socket.emit('host-join', { roomId }, (response) => {

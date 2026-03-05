@@ -42,7 +42,8 @@ app.get("/room/:roomId", (req, res) => {
     if (!room) {
         return res.status(404).send("Room not found");
     }
-    res.sendFile(__dirname + "/public/room-client.html");
+    // Redirect to client page with room ID as query parameter
+    res.redirect(`/room-client.html?room=${req.params.roomId}`);
 });
 
 app.get("/api/ips", (req, res) => {

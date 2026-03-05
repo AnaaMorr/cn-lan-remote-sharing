@@ -8,12 +8,45 @@
  * - Managing connection latency
  */
 
-const socket = io();
+// Get room ID from URL
 const roomId = new URLSearchParams(window.location.search).get('room');
+
+// Validate room ID before proceeding
+if (!roomId) {
+    document.body.innerHTML = `
+        <div style="display: flex; align-items: center; justify-content: center; height: 100vh; flex-direction: column; color: #f1f5f9; text-align: center;">
+            <h1 style="color: #ef4444;">Invalid Room Link</h1>
+            <p>No room ID found. Please use the link shared by the host.</p>
+            <button onclick="window.location.href='/'" class="btn btn-primary" style="margin-top: 1rem;">
+                ← Back to Home
+            </button>
+        </div>
+    `;
+    throw new Error('Room ID not provided in URL');
+}
+
+const socket = io();
 let pc = null;
 let hostId = null;
 let isConnected = false;
 let lastMessageTime = 0;
+
+// Log socket connection status
+socket.on('connect', () => {
+    console.log('✓ Connected to signaling server:', socket.id);
+});
+
+socket.on('connect_error', (error) => {
+    console.error('✗ Socket connection error:', error);
+    connectionBadge.textContent = 'Server Connection Failed';
+    connectionBadge.classList.add('badge-danger');
+    alert('Failed to connect to signaling server. Check your internet connection or the server IP.');
+});
+
+socket.on('disconnect', (reason) => {
+    console.warn('Socket disconnected:', reason);
+    updateConnectionStatus(false);
+});
 
 // UI elements
 const videoElement = document.getElementById('remoteVideo');
@@ -33,8 +66,23 @@ socket.emit('client-join', { roomId }, (response) => {
         hostId = response.hostId;
         createPeerConnection();
     } else {
-        alert('Failed to join room: ' + response.error);
-        goHome();
+        const errorMsg = response?.error || 'Unknown error';
+        console.error('Failed to join room:', errorMsg);
+        
+        // Show error in a user-friendly way
+        connectionBadge.textContent = 'Connection Failed';
+        connectionBadge.classList.add('badge-danger');
+        
+        // Display error message
+        if (errorMsg === 'Host not connected') {
+            alert(`Cannot connect: Host is not online for room ${roomId}. Please wait for the host to start sharing.`);
+        } else if (errorMsg === 'Room not found') {
+            alert(`Room ${roomId} does not exist. Please check the link and try again.`);
+        } else {
+            alert('Failed to join room: ' + errorMsg);
+        }
+        
+        setTimeout(() => goHome(), 2000);
     }
 });
 
